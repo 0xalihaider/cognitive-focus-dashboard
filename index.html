@@ -1,823 +1,470 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
-    <title>Snappy Focus Engine</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      href="https://fonts.googleapis.com/icon?family=Material+Icons+Round"
-      rel="stylesheet"
-    />
-    <link rel="manifest" href="manifest.json" />
-
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@sudohaider | Core Operations</title>
     <style>
-      /* ZERO-LATENCY MINIMAL THEME - NO FLUFFY ANIMATIONS */
-      :root {
-        --text-dark: #0f172a;
-        --text-muted: #64748b;
-        --accent-blue: #2563eb;
-        --accent-break: #f59e0b;
-        --accent-namaz: #8b5cf6;
-        --accent-panic: #e11d48;
-        --pure-white: #ffffff;
-        --bg-color: #f8fafc;
-        --border-color: #e2e8f0;
-
-        --font-main: "Plus Jakarta Sans", sans-serif;
-      }
-
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      body {
-        background-color: var(--bg-color);
-        color: var(--text-dark);
-        font-family: var(--font-main);
-        line-height: 1.5;
-        padding: 1.5rem 1rem;
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-      }
-
-      .app-container {
-        max-width: 1150px;
-        width: 100%;
-        display: grid;
-        grid-template-columns: 1fr 380px;
-        gap: 20px;
-        align-items: start;
-      }
-
-      @media (max-width: 950px) {
-        .app-container {
-          grid-template-columns: 1fr;
+        :root {
+            --bg: #0f172a;
+            --panel: #1e293b;
+            --accent: #22d3ee;
+            --accent-hover: #06b6d4;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+            --font-sans: system-ui, -apple-system, sans-serif;
+            --radius: 6px;
         }
-      }
 
-      /* SOLID FAST CARDS - No Glass, No Blur, No Transitions */
-      .solid-card {
-        background: var(--pure-white);
-        border: 1px solid var(--border-color);
-        border-radius: 12px;
-        padding: 24px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-      }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
-      .app-bar {
-        grid-column: 1 / -1;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 10px;
-      }
-      .app-title {
-        font-size: 1.4rem;
-        font-weight: 800;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-      .badge {
-        background: #f1f5f9;
-        padding: 6px 12px;
-        border-radius: 6px;
-        font-size: 0.85rem;
-        font-weight: 700;
-        border: 1px solid #cbd5e1;
-      }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: var(--font-sans);
+            line-height: 1.6;
+            padding: 1.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
 
-      .label-sm {
-        font-size: 0.8rem;
-        font-weight: 800;
-        text-transform: uppercase;
-        color: var(--text-muted);
-        margin-bottom: 8px;
-      }
-      .heading-xl {
-        font-size: 2.5rem;
-        font-weight: 800;
-        line-height: 1.1;
-        margin-bottom: 8px;
-      }
+        header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
 
-      /* INSTANT PROGRESS BARS */
-      .prog-track {
-        background: #f1f5f9;
-        height: 16px;
-        border-radius: 8px;
-        overflow: hidden;
-        margin: 12px 0;
-      }
-      /* REMOVED TRANSITION FOR INSTANT FEEL */
-      .prog-fill {
-        background: var(--text-dark);
-        height: 100%;
-        width: 0%;
-        border-radius: 8px;
-      }
+        h1 { font-family: var(--font-mono); font-size: clamp(1.2rem, 3vw, 1.8rem); color: var(--accent); }
+        .status { font-family: var(--font-mono); font-size: clamp(0.9rem, 2vw, 1rem); color: var(--text-muted); background: var(--bg); border: 1px solid var(--border); padding: 0.25rem 0.75rem; border-radius: var(--radius); }
 
-      .cycle-box {
-        margin-top: 24px;
-        padding-top: 24px;
-        border-top: 1px solid var(--border-color);
-      }
-      .cycle-time {
-        font-size: 4rem;
-        font-weight: 800;
-        line-height: 1;
-        margin-bottom: 8px;
-      }
+        .grid-layout {
+            display: grid;
+            grid-template-columns: minmax(300px, 1fr) 2fr;
+            gap: 2rem;
+            align-items: start;
+        }
 
-      .list-container {
-        margin-top: 12px;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
-      .list-item {
-        display: flex;
-        justify-content: space-between;
-        padding: 12px;
-        border-radius: 8px;
-        background: #f8fafc;
-        border: 1px solid var(--border-color);
-        font-weight: 600;
-        font-size: 0.9rem;
-      }
-      .list-item.active {
-        background: #eff6ff;
-        border-color: var(--accent-blue);
-        color: var(--accent-blue);
-      }
+        .panel {
+            background: var(--panel);
+            padding: clamp(1rem, 3vw, 2rem);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
 
-      /* BUTTONS & INPUTS - Sharp & Snappy */
-      .btn {
-        background: var(--text-dark);
-        color: var(--pure-white);
-        border: none;
-        padding: 12px 20px;
-        border-radius: 8px;
-        font-weight: 700;
-        font-family: var(--font-main);
-        cursor: pointer;
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 8px;
-      }
-      .btn:active {
-        background: #000;
-        transform: scale(0.98);
-      } /* Click feedback only */
+        h2 { font-size: 1.1rem; margin-bottom: 1.5rem; font-family: var(--font-mono); color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; }
+        .section-divider { margin: 2rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); color: var(--text-muted); font-family: var(--font-mono); font-size: 0.85rem; }
 
-      .input-wrap {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: #f8fafc;
-        padding: 10px 12px;
-        border-radius: 8px;
-        margin-bottom: 8px;
-        border: 1px solid var(--border-color);
-      }
-      .input-wrap input {
-        border: none;
-        background: transparent;
-        font-weight: 700;
-        outline: none;
-        text-align: right;
-        font-family: var(--font-main);
-      }
+        .input-group { margin-bottom: 1.25rem; }
+        label { display: block; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.4rem; font-weight: 500; }
+        input[type="time"], input[type="number"] {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-family: var(--font-mono);
+            border-radius: var(--radius);
+            outline: none;
+            transition: all 0.2s ease;
+            font-size: 1rem;
+        }
+        input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.2); }
 
-      /* SLEEP RESULTS */
-      .sleep-box {
-        background: #eff6ff;
-        border: 1px dashed var(--accent-blue);
-        padding: 12px;
-        border-radius: 8px;
-        font-size: 0.9rem;
-        margin-top: 10px;
-        display: none;
-      }
+        button {
+            width: 100%;
+            padding: 1rem;
+            background: var(--accent);
+            color: var(--bg);
+            border: none;
+            border-radius: var(--radius);
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: transform 0.1s, background 0.2s;
+            margin-top: 1rem;
+        }
+        button:hover { background: var(--accent-hover); }
+        button:active { transform: scale(0.98); }
+
+        /* Dynamic Schedule Items */
+        .schedule-item {
+            display: flex;
+            padding: 1rem;
+            border: 1px solid var(--border);
+            margin-bottom: 0.5rem;
+            border-radius: var(--radius);
+            background: var(--bg);
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s;
+        }
+        .schedule-item:hover { border-color: var(--text-muted); }
+        
+        .time-block { font-family: var(--font-mono); color: var(--accent); font-size: 0.95rem; font-weight: 600; min-width: 160px; }
+        .task-block { flex: 1; display: flex; align-items: center; justify-content: space-between; font-weight: 500; }
+        
+        /* Custom Checkbox */
+        .checkbox-wrapper { display: flex; align-items: center; justify-content: center; }
+        .task-tick {
+            appearance: none;
+            width: 1.4rem;
+            height: 1.4rem;
+            border: 2px solid var(--border);
+            border-radius: 4px;
+            background: var(--bg);
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
+        }
+        .task-tick:hover { border-color: var(--accent); }
+        .task-tick:checked { background: var(--accent); border-color: var(--accent); }
+        .task-tick:checked::after {
+            content: '✔';
+            position: absolute;
+            color: var(--bg);
+            font-size: 1rem;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Completed State */
+        .completed-item { opacity: 0.5; border-color: var(--border) !important; background: var(--panel); }
+        .completed-item .task-block span:first-child { text-decoration: line-through; color: var(--text-muted); }
+        .completed-item .time-block { color: var(--text-muted); }
+        
+        .type-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-family: var(--font-mono);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .type-break { background: #3f3f46; color: #e4e4e7; }
+        .type-study { background: #164e63; color: #67e8f9; }
+        .type-prayer { background: #064e3b; color: #6ee7b7; border: 1px solid #059669; }
+        .type-routine { background: #312e81; color: #c4b5fd; }
+        .type-maintenance { background: #7c2d12; color: #fdba74; border: 1px solid #c2410c; }
+        .type-buffer { background: transparent; border: 1px dashed var(--border); color: var(--text-muted); }
+
+        @media (max-width: 850px) {
+            .grid-layout { grid-template-columns: 1fr; }
+            .panel { padding: 1.25rem; }
+            .schedule-item { flex-wrap: wrap; }
+            .time-block { width: 100%; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+            .task-block { width: 100%; margin-top: 0.5rem; }
+        }
     </style>
-  </head>
-  <body>
-    <div class="app-container">
-      <!-- HEADER -->
-      <div class="app-bar">
-        <div class="app-title">
-          <span class="material-icons-round">bolt</span> Snappy Engine
-        </div>
-        <div style="display: flex; gap: 8px">
-          <!-- NOTIFICATION BRAIN ACTIVATOR -->
-          <button
-            class="btn"
-            id="notify-btn"
-            style="
-              background: #10b981;
-              padding: 6px 12px;
-              width: auto;
-              font-size: 0.8rem;
-            "
-          >
-            <span class="material-icons-round" style="font-size: 16px"
-              >notifications</span
-            >
-            Enable Brain
-          </button>
-          <div class="badge" id="day-badge">Loading...</div>
-        </div>
-      </div>
+</head>
+<body>
 
-      <!-- LEFT COLUMN (DOING) -->
-      <div style="display: flex; flex-direction: column; gap: 16px">
-        <div class="solid-card">
-          <div class="label-sm">Active Module</div>
-          <div class="heading-xl" id="task-title">Initializing...</div>
+    <header>
+        <h1>@sudohaider // ENGINE</h1>
+        <div class="status" id="clock">00:00:00</div>
+    </header>
 
-          <div class="prog-track">
-            <div class="prog-fill" id="task-progress"></div>
-          </div>
-
-          <div class="cycle-box" id="cycle-card">
-            <div
-              class="label-sm"
-              id="cycle-status"
-              style="color: var(--accent-blue)"
-            >
-              Focus Cycle Active
+    <div class="grid-layout">
+        <!-- Configuration Panel -->
+        <div class="panel">
+            <h2>> parameters</h2>
+            
+            <div class="input-group">
+                <label>Target Sleep Time (Initiates 5x 90m Cycles)</label>
+                <input type="time" id="sleepTime" value="00:00">
             </div>
-            <div class="cycle-time" id="cycle-timer">00:00</div>
-            <div class="prog-track" style="height: 8px">
-              <div class="prog-fill" id="cycle-progress"></div>
+
+            <div class="input-group">
+                <label>Virtual Uni Subjects (Daily Load)</label>
+                <input type="number" id="subjectCount" value="5" min="1" max="10">
             </div>
-          </div>
 
-          <div class="label-sm" style="margin-top: 24px">
-            Sequence Milestones
-          </div>
-          <div class="list-container" id="session-itinerary"></div>
+            <div class="section-divider">prayer_intervals (Namaz)</div>
+            
+            <div class="input-group"><label>Fajr</label><input type="time" id="fajr" value="05:30"></div>
+            <div class="input-group"><label>Dhuhr</label><input type="time" id="dhuhr" value="13:30"></div>
+            <div class="input-group"><label>Asr</label><input type="time" id="asr" value="16:45"></div>
+            <div class="input-group"><label>Maghrib</label><input type="time" id="maghrib" value="18:30"></div>
+            <div class="input-group"><label>Isha</label><input type="time" id="isha" value="20:00"></div>
+
+            <button id="generateBtn">Re-Compile Sequence</button>
         </div>
 
-        <button
-          class="btn"
-          id="panic-btn"
-          style="
-            background: var(--pure-white);
-            color: var(--accent-panic);
-            border: 2px solid var(--accent-panic);
-          "
-        >
-          Urge Protection (15m Lock)
-        </button>
-        <div
-          class="solid-card"
-          id="panic-display"
-          style="
-            display: none;
-            text-align: center;
-            border-color: var(--accent-panic);
-          "
-        >
-          <div
-            class="cycle-time"
-            id="panic-countdown"
-            style="color: var(--accent-panic)"
-          >
-            15:00
-          </div>
+        <!-- Output Panel -->
+        <div class="panel">
+            <h2>> execution_stack</h2>
+            <div id="scheduleOutput">
+                <p style="color: var(--text-muted); font-size: 0.95rem; font-family: var(--font-mono);">Awaiting compilation or system restore...</p>
+            </div>
         </div>
-      </div>
-
-      <!-- RIGHT COLUMN (THINKING / SETTINGS) -->
-      <div style="display: flex; flex-direction: column; gap: 16px">
-        <!-- THE NEW SLEEP CALCULATOR -->
-        <div class="solid-card">
-          <div class="label-sm" style="color: var(--accent-blue)">
-            Brain Rest Calculator
-          </div>
-          <div
-            style="
-              font-size: 0.85rem;
-              margin-bottom: 12px;
-              color: var(--text-muted);
-            "
-          >
-            Enter bedtime. Assumes 30 mins to fall asleep. Calculates 90-min REM
-            cycles.
-          </div>
-          <div class="input-wrap">
-            <label>Bedtime</label>
-            <input type="time" id="time-bed" />
-          </div>
-          <button
-            class="btn"
-            id="calc-sleep-btn"
-            style="background: var(--accent-blue)"
-          >
-            Calculate Wake Time
-          </button>
-          <div class="sleep-box" id="sleep-result"></div>
-        </div>
-
-        <!-- SCHEDULE SHIFT -->
-        <div class="solid-card">
-          <div class="label-sm">Day Shift (Woke Up Late?)</div>
-          <div class="input-wrap">
-            <label>Wake Time</label><input type="time" id="time-wakeup" />
-          </div>
-          <div style="display: flex; gap: 8px">
-            <button class="btn" id="apply-shift-btn">Apply</button>
-            <button
-              class="btn"
-              id="reset-shift-btn"
-              style="background: #e2e8f0; color: #000"
-            >
-              Reset
-            </button>
-          </div>
-        </div>
-
-        <!-- NAMAZ OVERRIDES -->
-        <div class="solid-card">
-          <div class="label-sm">Absolute Directives (Prayers)</div>
-          <div class="input-wrap">
-            <label>Fajr</label
-            ><input type="time" id="time-fajr" value="05:00" />
-          </div>
-          <div class="input-wrap">
-            <label>Zuhr</label
-            ><input type="time" id="time-zuhr" value="13:30" />
-          </div>
-          <div class="input-wrap">
-            <label>Asr</label><input type="time" id="time-asr" value="16:30" />
-          </div>
-          <div class="input-wrap">
-            <label>Maghrib</label
-            ><input type="time" id="time-maghrib" value="18:15" />
-          </div>
-          <div class="input-wrap">
-            <label>Isha</label
-            ><input type="time" id="time-isha" value="19:45" />
-          </div>
-          <button class="btn" id="save-btn" style="margin-top: 8px">
-            Save Times
-          </button>
-        </div>
-      </div>
     </div>
 
     <script>
-      // ------------- THE BRAIN (NOTIFICATION ENGINE) -------------
-      // ------------- THE BRAIN (NOTIFICATION ENGINE) -------------
-      let notificationsEnabled = false;
-      let lastNotificationState = "";
+        const clockEl = document.getElementById('clock');
+        const generateBtn = document.getElementById('generateBtn');
+        const scheduleOutput = document.getElementById('scheduleOutput');
+        const allInputs = document.querySelectorAll('input[type="time"], input[type="number"]');
+        
+        let systemState = {
+            completedBlocks: [], 
+            pendingQueue: [],    
+            completedFixed: [],  
+            lastShiftMins: 0     
+        };
 
-      const notifyBtn = document.getElementById("notify-btn");
+        let activeAlarms = [];
+        let alarmInterval = null;
 
-      // Step 1: Check immediately on page load
-      if ("Notification" in window) {
-        if (Notification.permission === "granted") {
-          // Agar permission pehle se hai, toh button hamesha ke liye chupa do
-          notificationsEnabled = true;
-          notifyBtn.style.display = "none";
-        }
-      } else {
-        // Agar browser purana hai aur notifications support hi nahi karta
-        notifyBtn.style.display = "none";
-      }
-
-      // Step 2: Handle button click if permission is NOT granted yet
-      notifyBtn.addEventListener("click", () => {
-        if (!("Notification" in window)) {
-          alert("This browser does not support desktop notification");
-        } else if (Notification.permission !== "denied") {
-          Notification.requestPermission().then((permission) => {
-            if (permission === "granted") {
-              notificationsEnabled = true;
-              notifyBtn.style.display = "none"; // Click karne ke baad foran gayab
-              new Notification("Brain Connected!", {
-                body: "You will now get alerts for breaks and focus.",
-              });
-            }
-          });
-        }
-      });
-
-      function sendNotification(title, body) {
-        if (notificationsEnabled && Notification.permission === "granted") {
-          new Notification(title, { body: body, icon: "icon-192.png" });
-        }
-      }
-
-      // ------------- SLEEP CALCULATOR -------------
-      document
-        .getElementById("calc-sleep-btn")
-        .addEventListener("click", () => {
-          const bedTime = document.getElementById("time-bed").value;
-          if (!bedTime) return;
-
-          const [h, m] = bedTime.split(":").map(Number);
-
-          let sleepDate = new Date();
-          sleepDate.setHours(h, m, 0, 0);
-
-          // Add 30 mins sleep latency
-          let actualSleepStart = new Date(sleepDate.getTime() + 30 * 60000);
-
-          // 5 cycles = 7.5 hours (450 mins)
-          let wake5 = new Date(actualSleepStart.getTime() + 450 * 60000);
-          // 6 cycles = 9 hours (540 mins)
-          let wake6 = new Date(actualSleepStart.getTime() + 540 * 60000);
-
-          const formatTime = (d) => {
-            let hh = d.getHours();
-            let mm = d.getMinutes().toString().padStart(2, "0");
-            let ampm = hh >= 12 ? "PM" : "AM";
-            hh = hh % 12 || 12;
-            return `${hh.toString().padStart(2, "0")}:${mm} ${ampm}`;
-          };
-
-          const resBox = document.getElementById("sleep-result");
-          resBox.style.display = "block";
-          resBox.innerHTML = `
-          Deep Sleep starts approx: <b>${formatTime(actualSleepStart)}</b><br><br>
-          Optimal Wake (7.5 Hrs): <b style="color:var(--accent-blue); font-size:1.1rem;">${formatTime(wake5)}</b><br>
-          Max Rest Wake (9 Hrs): <b style="color:var(--text-dark);">${formatTime(wake6)}</b>
-        `;
+        // Auto-Save Inputs
+        allInputs.forEach(input => {
+            input.addEventListener('input', () => localStorage.setItem(input.id, input.value));
         });
 
-      // ------------- ENGINE LOGIC -------------
-      const weekdaySchedule = [
-        { start: 0, end: 6, task: "Offline (Memory Sync)" },
-        { start: 6, end: 7, task: "Boot Up, Exercise, Fuel" },
-        { start: 7, end: 9.5, task: "Frontend Masters (Code & Compile)" },
-        { start: 9.5, end: 10.5, task: "Maths Practice (Analog Compute)" },
-        { start: 10.5, end: 13, task: "BBIT: LMS Data Stream" },
-        { start: 13, end: 14, task: "Low Power Mode (Lunch & Rest)" },
-        { start: 14, end: 17, task: "BBIT: Physical Archives Study" },
-        { start: 17, end: 18.5, task: "Nature Walk (Dopamine Reset)" },
-        { start: 18.5, end: 20, task: "Vanilla JS / CSS Layouts" },
-        { start: 20, end: 21, task: "Dinner Phase" },
-        { start: 21, end: 22, task: "Crunchyroll Anime (Reward Stream)" },
-        { start: 22, end: 24, task: "Offline (Memory Sync)" },
-      ];
-
-      const saturdaySchedule = [
-        { start: 0, end: 6, task: "Offline Mode" },
-        { start: 6, end: 7, task: "Boot Up & Fuel" },
-        { start: 7, end: 10, task: "Hands-on Build (Zero Docs)" },
-        { start: 10, end: 10.5, task: "Analog Break" },
-        { start: 10.5, end: 13, task: "Open Source / Problem Solving" },
-        { start: 13, end: 14, task: "Low Power Mode" },
-        { start: 14, end: 17, task: "Project Polish / Deploy" },
-        { start: 17, end: 18.5, task: "Nature Walk" },
-        { start: 18.5, end: 20, task: "Refactoring Code" },
-        { start: 20, end: 21, task: "Dinner Phase" },
-        { start: 21, end: 22, task: "Crunchyroll Anime (Reward)" },
-        { start: 22, end: 24, task: "Offline Mode" },
-      ];
-
-      const sundaySchedule = [
-        { start: 0, end: 6, task: "Offline Mode" },
-        { start: 6, end: 7, task: "Boot Up & Walk" },
-        { start: 7, end: 10, task: "Slow Morning (Idle)" },
-        { start: 10, end: 13, task: "Unstructured Hobby" },
-        { start: 13, end: 14, task: "Low Power Mode" },
-        { start: 14, end: 17, task: "Social Connection" },
-        { start: 17, end: 18.5, task: "Extended Nature Exposure" },
-        { start: 18.5, end: 21, task: "Crunchyroll Binge Session" },
-        { start: 21, end: 22, task: "Dinner Phase" },
-        { start: 22, end: 24, task: "Offline Mode" },
-      ];
-
-      const prayers = ["fajr", "zuhr", "asr", "maghrib", "isha"];
-
-      prayers.forEach((p) => {
-        const saved = localStorage.getItem(`namaz-${p}`);
-        if (saved) document.getElementById(`time-${p}`).value = saved;
-      });
-
-      let scheduleOffset = 0;
-      const todayStr = new Date().toDateString();
-      const savedWake = localStorage.getItem("wake-time");
-      const savedDate = localStorage.getItem("wake-date");
-
-      if (savedWake && savedDate === todayStr) {
-        document.getElementById("time-wakeup").value = savedWake;
-        scheduleOffset = Math.max(0, timeToDecimal(savedWake) - 6);
-      } else {
-        localStorage.removeItem("wake-time");
-      }
-
-      function timeToDecimal(t) {
-        const [h, m] = t.split(":").map(Number);
-        return h + m / 60;
-      }
-      function formatTime(dec) {
-        let h = Math.floor(dec);
-        let m = Math.round((dec - h) * 60);
-        if (m === 60) {
-          h++;
-          m = 0;
-        }
-        let displayH = h % 24;
-        if (displayH === 0 && m === 0) return "12:00 AM";
-        let ampm = displayH >= 12 ? "PM" : "AM";
-        return `${(displayH % 12 || 12).toString().padStart(2, "0")}:${m.toString().padStart(2, "0")} ${ampm}`;
-      }
-
-      function runEngine() {
-        const now = new Date();
-        const day = now.getDay();
-        let baseSched = weekdaySchedule;
-        let mode = "Mon-Fri (Builder)";
-
-        if (day === 0) {
-          baseSched = sundaySchedule;
-          mode = "Sun (Maintenance)";
-        } else if (day === 6) {
-          baseSched = saturdaySchedule;
-          mode = "Sat (Creator)";
-        }
-
-        document.getElementById("day-badge").innerText = mode;
-
-        let sched = baseSched.map((t) => ({
-          ...t,
-          start: t.start + scheduleOffset,
-          end: t.end + scheduleOffset,
-        }));
-        let currDec =
-          now.getHours() + now.getMinutes() / 60 + now.getSeconds() / 3600;
-        let effectiveDec = currDec;
-        let baseTask = null;
-        let isNamaz = false;
-        let nName = "";
-
-        sched.forEach((t) => {
-          if (currDec >= t.start && currDec < t.end) baseTask = t;
-          else if (currDec + 24 >= t.start && currDec + 24 < t.end) {
-            baseTask = t;
-            effectiveDec = currDec + 24;
-          }
-        });
-
-        prayers.forEach((p) => {
-          let nTime = timeToDecimal(document.getElementById(`time-${p}`).value);
-          if (currDec >= nTime && currDec < nTime + 0.25) {
-            isNamaz = true;
-            nName = p.toUpperCase();
-          }
-        });
-
-        const tTitle = document.getElementById("task-title");
-        const tProg = document.getElementById("task-progress");
-        const cycleCard = document.getElementById("cycle-card");
-        const itiContainer = document.getElementById("session-itinerary");
-
-        let currentEngineState = ""; // To track changes for Notifications
-
-        if (baseTask) {
-          let subEvents = [];
-          let t = baseTask.start;
-          let blockIdx = 1;
-
-          while (t < baseTask.end) {
-            let focusEnd = Math.min(t + 50 / 60, baseTask.end);
-            subEvents.push({
-              type: "focus",
-              start: t,
-              end: focusEnd,
-              title: `Focus Block ${blockIdx}`,
-            });
-            if (focusEnd < baseTask.end) {
-              let breakEnd = Math.min(focusEnd + 10 / 60, baseTask.end);
-              subEvents.push({
-                type: "break",
-                start: focusEnd,
-                end: breakEnd,
-                title: `Recovery Break ${blockIdx}`,
-              });
-              t = breakEnd;
-              blockIdx++;
-            } else {
-              t = focusEnd;
-            }
-          }
-
-          prayers.forEach((p) => {
-            let nTime = timeToDecimal(
-              document.getElementById(`time-${p}`).value,
-            );
-            let adjustedNTime =
-              nTime < 12 && baseTask.start > 12 && effectiveDec > 24
-                ? nTime + 24
-                : nTime;
-            if (
-              adjustedNTime >= baseTask.start &&
-              adjustedNTime < baseTask.end
-            ) {
-              subEvents.push({
-                type: "namaz",
-                start: adjustedNTime,
-                end: adjustedNTime + 0.25,
-                title: `Prayer: ${p}`,
-              });
-            }
-          });
-
-          subEvents.sort((a, b) => a.start - b.start);
-          itiContainer.innerHTML = "";
-
-          subEvents.forEach((ev) => {
-            let isActive = false;
-            if (
-              isNamaz &&
-              ev.type === "namaz" &&
-              effectiveDec >= ev.start &&
-              effectiveDec < ev.end
-            )
-              isActive = true;
-            else if (
-              !isNamaz &&
-              ev.type !== "namaz" &&
-              effectiveDec >= ev.start &&
-              effectiveDec < ev.end
-            )
-              isActive = true;
-
-            let cStr = "list-item";
-            if (isActive) cStr += " active";
-
-            itiContainer.innerHTML += `
-              <div class="${cStr}">
-                <span>${ev.title.toUpperCase()}</span>
-                <span>${formatTime(ev.start)} - ${formatTime(ev.end)}</span>
-              </div>
-            `;
-          });
-        }
-
-        if (isNamaz) {
-          currentEngineState = "NAMAZ";
-          tTitle.innerText = `${nName} PRAYER`;
-          tTitle.style.color = "var(--accent-namaz)";
-          let elap =
-            currDec -
-            timeToDecimal(
-              document.getElementById(`time-${nName.toLowerCase()}`).value,
-            );
-          tProg.style.width = `${Math.max(0, Math.min(100, (elap / 0.25) * 100))}%`;
-          tProg.style.background = "var(--accent-namaz)";
-          cycleCard.style.display = "none";
-        } else if (baseTask) {
-          tTitle.innerText = baseTask.task;
-          tTitle.style.color = "var(--text-dark)";
-          let dur = baseTask.end - baseTask.start;
-          let elap = effectiveDec - baseTask.start;
-          tProg.style.width = `${Math.max(0, Math.min(100, (elap / dur) * 100))}%`;
-          tProg.style.background = "var(--text-dark)";
-
-          cycleCard.style.display = "block";
-          let elapsedMins = elap * 60;
-          let cycleMin = elapsedMins % 60;
-          let isBreak = cycleMin >= 50;
-
-          const cStatus = document.getElementById("cycle-status");
-          const cTimer = document.getElementById("cycle-timer");
-          const cProg = document.getElementById("cycle-progress");
-
-          if (isBreak) {
-            currentEngineState = "BREAK";
-            cStatus.innerText = "RECOVERY BREAK ACTIVE";
-            cStatus.style.color = "var(--accent-break)";
-            cTimer.style.color = "var(--accent-break)";
-            let breakRemainMins = 60 - cycleMin;
-            cTimer.innerText = `${Math.floor(breakRemainMins).toString().padStart(2, "0")}:${(59 - now.getSeconds()).toString().padStart(2, "0")}`;
-            cProg.style.width = `${((cycleMin - 50) / 10) * 100}%`;
-            cProg.style.background = "var(--accent-break)";
-          } else {
-            currentEngineState = "FOCUS";
-            cStatus.innerText = "DEEP FOCUS ACTIVE";
-            cStatus.style.color = "var(--accent-blue)";
-            cTimer.style.color = "var(--text-dark)";
-            let focusRemainMins = 50 - cycleMin;
-            cTimer.innerText = `${Math.floor(focusRemainMins).toString().padStart(2, "0")}:${(59 - now.getSeconds()).toString().padStart(2, "0")}`;
-            cProg.style.width = `${(cycleMin / 50) * 100}%`;
-            cProg.style.background = "var(--accent-blue)";
-          }
-        }
-
-        // TRIGGER NOTIFICATIONS IF STATE CHANGES
-        if (
-          lastNotificationState !== "" &&
-          lastNotificationState !== currentEngineState
-        ) {
-          if (currentEngineState === "FOCUS")
-            sendNotification(
-              "🧠 Deep Focus Time",
-              "Get back to work! 50 minutes strictly on the task.",
-            );
-          else if (currentEngineState === "BREAK")
-            sendNotification(
-              "☕ Break Time!",
-              "Step away from the screen for 10 minutes. Relax your eyes.",
-            );
-          else if (currentEngineState === "NAMAZ")
-            sendNotification(
-              "🕌 Prayer Time",
-              "Time for Namaz. Pause your tasks.",
-            );
-        }
-        lastNotificationState = currentEngineState;
-      }
-
-      document.getElementById("save-btn").addEventListener("click", (e) => {
-        prayers.forEach((p) =>
-          localStorage.setItem(
-            `namaz-${p}`,
-            document.getElementById(`time-${p}`).value,
-          ),
-        );
-        runEngine();
-        e.target.innerText = "Saved";
-        setTimeout(() => (e.target.innerText = "Save Times"), 2000);
-      });
-
-      document
-        .getElementById("apply-shift-btn")
-        .addEventListener("click", (e) => {
-          const val = document.getElementById("time-wakeup").value;
-          if (val) {
-            scheduleOffset = Math.max(0, timeToDecimal(val) - 6);
-            localStorage.setItem("wake-time", val);
-            localStorage.setItem("wake-date", new Date().toDateString());
-            runEngine();
-            e.target.innerText = "Applied";
-            setTimeout(() => (e.target.innerText = "Apply"), 2000);
-          }
-        });
-
-      document
-        .getElementById("reset-shift-btn")
-        .addEventListener("click", () => {
-          scheduleOffset = 0;
-          document.getElementById("time-wakeup").value = "";
-          localStorage.removeItem("wake-time");
-          runEngine();
-        });
-
-      // PANIC BUTTON
-      let panicTimerInterval;
-      document.getElementById("panic-btn").addEventListener("click", () => {
-        const panel = document.getElementById("panic-display");
-        const btn = document.getElementById("panic-btn");
-        const countdown = document.getElementById("panic-countdown");
-        if (panel.style.display === "block") return;
-        btn.style.display = "none";
-        panel.style.display = "block";
-        let sec = 15 * 60;
-        panicTimerInterval = setInterval(() => {
-          let m = Math.floor(sec / 60)
-            .toString()
-            .padStart(2, "0");
-          let s = (sec % 60).toString().padStart(2, "0");
-          countdown.innerText = `${m}:${s}`;
-          if (sec <= 0) {
-            clearInterval(panicTimerInterval);
-            panel.style.display = "none";
-            btn.style.display = "block";
-            btn.innerHTML = `Protection Over`;
-            btn.style.color = "#10b981";
-            btn.style.borderColor = "#10b981";
-            setTimeout(() => {
-              btn.innerHTML = `Urge Protection (15m Lock)`;
-              btn.style.color = "var(--accent-panic)";
-              btn.style.borderColor = "var(--accent-panic)";
-            }, 3000);
-          }
-          sec--;
+        setInterval(() => {
+            clockEl.innerText = new Date().toLocaleTimeString('en-US', { hour12: true });
         }, 1000);
-      });
 
-      runEngine();
-      setInterval(runEngine, 1000); // 1 SEC INTERVAL - SHARP
+        function timeToMins(timeStr) {
+            if (!timeStr) return 0;
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            return (hours * 60) + minutes;
+        }
+
+        function minsToTimeStr(mins) {
+            let totalMins = mins % 1440; 
+            if (totalMins < 0) totalMins += 1440;
+            const h = Math.floor(totalMins / 60);
+            const m = totalMins % 60;
+            const period = h >= 12 ? 'PM' : 'AM';
+            const h12 = h % 12 === 0 ? 12 : h % 12;
+            const padM = m.toString().padStart(2, '0');
+            return `${h12}:${padM} ${period}`;
+        }
+
+        function getRealNowMins() {
+            const now = new Date();
+            return (now.getHours() * 60) + now.getMinutes();
+        }
+
+        async function initNotifications() {
+            if (!("Notification" in window)) return false;
+            let perm = Notification.permission;
+            if (perm !== "granted") perm = await Notification.requestPermission();
+            return perm === "granted";
+        }
+
+        // ==========================================
+        // 1. ENGINE INITIALIZATION (FRESH START)
+        // ==========================================
+        generateBtn.addEventListener('click', async () => {
+            await initNotifications();
+            
+            // Reset State completely
+            systemState.completedBlocks = [];
+            systemState.completedFixed = [];
+            systemState.pendingQueue = [];
+            
+            const sleepMins = timeToMins(document.getElementById('sleepTime').value);
+            const wakeMins = sleepMins + 450; // 5 cycles * 90m
+            const subjectCount = parseInt(document.getElementById('subjectCount').value);
+
+            // Populate the logical sequence queue
+            systemState.pendingQueue.push({ id: 'boot', title: 'System Boot & Morning Prep', duration: 60, type: 'routine' });
+            
+            let totalBlocks = 2 + subjectCount; 
+            for(let i = 1; i <= totalBlocks; i++) {
+                let taskName = i <= 2 ? `Frontend Masters (Watch → Practice)` : `VU Degree Module ${i - 2}`;
+                systemState.pendingQueue.push({ id: `study_${i}`, title: `[Focus] ${taskName}`, duration: 50, type: 'study' });
+                if (i !== totalBlocks) {
+                    systemState.pendingQueue.push({ id: `break_${i}`, title: 'Cognitive Sandbox', duration: 10, type: 'break' });
+                }
+            }
+
+            systemState.lastShiftMins = wakeMins;
+            renderArchitecture();
+        });
+
+        // ==========================================
+        // 2. RENDER ARCHITECTURE (SELF-HEALING)
+        // ==========================================
+        function renderArchitecture() {
+            scheduleOutput.innerHTML = '';
+            activeAlarms = [];
+
+            // 1. Render Completed History
+            systemState.completedBlocks.forEach(block => {
+                scheduleOutput.innerHTML += `
+                    <div class="schedule-item completed-item">
+                        <div class="checkbox-wrapper"><input type="checkbox" class="task-tick" checked disabled></div>
+                        <div class="time-block">${block.timeStr}</div>
+                        <div class="task-block">
+                            <span>${block.title}</span>
+                            <span class="type-badge type-${block.type}">${block.type}</span>
+                        </div>
+                    </div>`;
+            });
+
+            if(systemState.pendingQueue.length === 0 && systemState.completedBlocks.length > 0) {
+                scheduleOutput.innerHTML += `<p style="color: var(--accent); font-family: var(--font-mono); margin-top: 1rem;">> EXECUTION COMPLETE. ALL SYSTEMS SHUT DOWN.</p>`;
+                saveState();
+                return;
+            }
+
+            // 2. Calculate Pending Sequence with Time-Drift
+            let simMins = systemState.lastShiftMins;
+            const sleepMins = timeToMins(document.getElementById('sleepTime').value);
+
+            // Gather Fixed Events & normalize for midnight wrapping
+            let fixedEvents = [
+                { id: 'fajr', name: 'Namaz: Fajr', mins: timeToMins(document.getElementById('fajr').value), duration: 30, type: 'prayer' },
+                { id: 'dhuhr', name: 'Namaz: Dhuhr', mins: timeToMins(document.getElementById('dhuhr').value), duration: 30, type: 'prayer' },
+                { id: 'asr', name: 'Namaz: Asr', mins: timeToMins(document.getElementById('asr').value), duration: 30, type: 'prayer' },
+                { id: 'maghrib', name: 'Namaz: Maghrib', mins: timeToMins(document.getElementById('maghrib').value), duration: 30, type: 'prayer' },
+                { id: 'isha', name: 'Namaz: Isha', mins: timeToMins(document.getElementById('isha').value), duration: 30, type: 'prayer' },
+                { id: 'maintenance', name: 'Maintenance Window', mins: 780, duration: 60, type: 'maintenance' }
+            ].map(e => {
+                // If event is early AM but sleep was late PM, it happens the "next" day logically
+                let nMins = e.mins;
+                if(sleepMins > 720 && nMins < 720) nMins += 1440;
+                return { ...e, nMins };
+            }).filter(e => !systemState.completedFixed.includes(e.id) && e.nMins >= simMins) // Only future uncompleted
+              .sort((a, b) => a.nMins - b.nMins);
+
+            const pushToUI = (id, title, duration, type, isQueueItem, isFixedItem) => {
+                const startStr = minsToTimeStr(simMins);
+                const endMins = simMins + duration;
+                const endStr = minsToTimeStr(endMins);
+                
+                const metaData = `data-id="${id}" data-title="${title}" data-type="${type}" data-isqueue="${isQueueItem}" data-isfixed="${isFixedItem}"`;
+                const isBuffer = type === 'buffer';
+                
+                scheduleOutput.innerHTML += `
+                    <div class="schedule-item">
+                        <div class="checkbox-wrapper">
+                            ${!isBuffer ? `<input type="checkbox" class="task-tick" ${metaData}>` : `<span style="width:1.4rem;"></span>`}
+                        </div>
+                        <div class="time-block">${startStr} - ${endStr}</div>
+                        <div class="task-block">
+                            <span>${title}</span>
+                            <span class="type-badge type-${type}">${type}</span>
+                        </div>
+                    </div>`;
+
+                let alarmTimeH = Math.floor((simMins % 1440) / 60).toString().padStart(2, '0');
+                let alarmTimeM = ((simMins % 1440) % 60).toString().padStart(2, '0');
+                activeAlarms.push({ time: `${alarmTimeH}:${alarmTimeM}`, title: "Architecture Update", msg: `Initiated: ${title}` });
+
+                simMins = endMins;
+            };
+
+            // Loop Queue and Apply Collision Logic
+            for (let i = 0; i < systemState.pendingQueue.length; i++) {
+                let queueItem = systemState.pendingQueue[i];
+                let eventFound = true;
+
+                while(eventFound && fixedEvents.length > 0) {
+                    eventFound = false;
+                    let event = fixedEvents[0];
+                    
+                    if (simMins >= event.nMins && simMins < (event.nMins + event.duration)) {
+                        pushToUI(event.id, event.name, (event.nMins + event.duration) - simMins, event.type, false, true);
+                        fixedEvents.shift();
+                        eventFound = true;
+                    } 
+                    else if (event.nMins > simMins && event.nMins < (simMins + queueItem.duration)) {
+                        let offset = event.nMins - simMins;
+                        pushToUI('buffer', 'System Buffer', offset, 'buffer', false, false);
+                        pushToUI(event.id, event.name, event.duration, event.type, false, true);
+                        fixedEvents.shift();
+                        eventFound = true;
+                    }
+                }
+                
+                pushToUI(queueItem.id, queueItem.title, queueItem.duration, queueItem.type, true, false);
+            }
+
+            saveState();
+            startAlarmLoop();
+        }
+
+        // ==========================================
+        // 3. EVENT DELEGATION (TICKING LOGIC)
+        // ==========================================
+        scheduleOutput.addEventListener('change', (e) => {
+            if (e.target.classList.contains('task-tick') && e.target.checked) {
+                const id = e.target.dataset.id;
+                const title = e.target.dataset.title;
+                const type = e.target.dataset.type;
+                const isQueue = e.target.dataset.isqueue === 'true';
+                const isFixed = e.target.dataset.isfixed === 'true';
+                
+                const nowMins = getRealNowMins();
+                const completionStr = `Done @ ${minsToTimeStr(nowMins)}`;
+
+                // Log Completion
+                systemState.completedBlocks.push({ id, title, timeStr: completionStr, type });
+
+                // Process Queue Removal or Fixed Event Logging
+                if (isQueue) {
+                    systemState.pendingQueue = systemState.pendingQueue.filter(item => item.id !== id);
+                } else if (isFixed) {
+                    systemState.completedFixed.push(id);
+                }
+
+                // DRIFT THE TIMELINE: The rest of the schedule now starts from exactly right now.
+                systemState.lastShiftMins = nowMins;
+                renderArchitecture();
+            }
+        });
+
+        // ==========================================
+        // 4. STORAGE & ALARM MANAGEMENT
+        // ==========================================
+        function saveState() {
+            localStorage.setItem('sudoEngineState', JSON.stringify(systemState));
+        }
+
+        function loadState() {
+            allInputs.forEach(input => {
+                const saved = localStorage.getItem(input.id);
+                if(saved) input.value = saved;
+            });
+            const savedState = localStorage.getItem('sudoEngineState');
+            if (savedState) {
+                systemState = JSON.parse(savedState);
+                renderArchitecture();
+            }
+        }
+
+        function startAlarmLoop() {
+            if (alarmInterval) clearInterval(alarmInterval);
+            let lastNotifiedTime = null;
+            alarmInterval = setInterval(() => {
+                const now = new Date();
+                const current24h = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+                if (lastNotifiedTime !== current24h) {
+                    const alarm = activeAlarms.find(a => a.time === current24h);
+                    if (alarm && Notification.permission === "granted") {
+                        new Notification(alarm.title, { body: alarm.msg });
+                        lastNotifiedTime = current24h;
+                    }
+                }
+            }, 5000); 
+        }
+
+        // Boot
+        loadState();
     </script>
-  </body>
+</body>
 </html>
